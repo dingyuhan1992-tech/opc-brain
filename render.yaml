@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: opc-brain
+    runtime: image
+    plan: free
+    image:
+      dockerfilePath: ./Dockerfile
+    envVars:
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://api.openai.com/v1
+      - key: LLM_MODEL
+        value: gpt-4o-mini
+      - key: PYTHON_VERSION
+        value: 3.11.0
