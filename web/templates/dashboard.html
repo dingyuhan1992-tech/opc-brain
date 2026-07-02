@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPC Brain - 一人公司智能大脑</title>
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --primary-dark: #5A4BD1;
+            --secondary: #00CEC9;
+            --accent: #FD79A8;
+            --bg: #0a0a1a;
+            --bg-card: #151528;
+            --bg-card-hover: #1c1c3a;
+            --text: #e8e8f0;
+            --text-muted: #9898b0;
+            --border: #2a2a4a;
+            --success: #00B894;
+            --warning: #FDCB6E;
+            --danger: #E17055;
+            --gradient: linear-gradient(135deg, #6C5CE7, #00CEC9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(21, 21, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar-brand .logo {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-text-fill-color: white;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-card .value.green { color: var(--success); }
+        .stat-card .value.purple { color: var(--primary); }
+        .stat-card .value.pink { color: var(--accent); }
+        .stat-card .value.blue { color: var(--secondary); }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .module-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .module-card:hover::before { opacity: 1; }
+        .module-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.15);
+        }
+
+        .module-card .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-card .features {
+            list-style: none;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-card .features li {
+            padding: 0.2rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .module-card .features li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--secondary);
+        }
+
+        .panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .panel.active { display: block; }
+
+        .panel-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .panel-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .result-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            max-height: 500px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .result-box.show { display: block; }
+
+        .result-box .json-key { color: var(--accent); }
+        .result-box .json-string { color: var(--success); }
+        .result-box .json-number { color: var(--secondary); }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--text); border-color: var(--text-muted); }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .loading.show { display: block; }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .chat-msg {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+
+        .chat-msg.user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.bot {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-msg .time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 0.3rem;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .hero h1 { font-size: 1.8rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .modules-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="logo">🧠</div>
+            OPC Brain
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active" onclick="showTab('dashboard')">仪表盘</a></li>
+            <li><a href="#" onclick="showTab('product')">商品优化</a></li>
+            <li><a href="#" onclick="showTab('content')">内容生成</a></li>
+            <li><a href="#" onclick="showTab('customer')">智能客服</a></li>
+            <li><a href="#" onclick="showTab('analytics')">数据分析</a></li>
+            <li><a href="#" onclick="showTab('marketing')">营销推广</a></li>
+            <li><a href="#" onclick="showTab('supply')">供应链</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Dashboard -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="hero">
+                <h1>🧠 OPC Brain</h1>
+                <p>一人公司 · 宠物保健品品牌 · 全链路 AI 智慧大脑</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">品牌健康度</div>
+                    <div class="value green" id="brand-health">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">AI 生成内容</div>
+                    <div class="value purple" id="total-content">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">覆盖平台</div>
+                    <div class="value pink">4</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">淘宝 · 抖音 · 小红书 · 微信</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">AI 能力</div>
+                    <div class="value blue">7</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">功能模块已就绪</div>
+                </div>
+            </div>
+
+            <h2 style="margin: 2rem 0 1rem;">核心功能模块</h2>
+            <div class="modules-grid">
+                <div class="module-card" onclick="showTab('product')">
+                    <div class="icon">🏷️</div>
+                    <h3>商品优化</h3>
+                    <p>AI 自动生成和优化商品标题、详情页文案</p>
+                    <ul class="features">
+                        <li>SEO 标题优化</li>
+                        <li>详情页文案生成</li>
+                        <li>图片优化建议</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('content')">
+                    <div class="icon">📝</div>
+                    <h3>内容生成</h3>
+                    <p>多平台营销内容一键生成</p>
+                    <ul class="features">
+                        <li>小红书种草笔记</li>
+                        <li>抖音短视频脚本</li>
+                        <li>朋友圈推广文案</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('customer')">
+                    <div class="icon">💬</div>
+                    <h3>智能客服</h3>
+                    <p>7×24 自动回复客户咨询</p>
+                    <ul class="features">
+                        <li>自动问答</li>
+                        <li>情感分析</li>
+                        <li>智能推荐</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('analytics')">
+                    <div class="icon">📊</div>
+                    <h3>数据分析</h3>
+                    <p>销售分析、竞品洞察、销量预测</p>
+                    <ul class="features">
+                        <li>销售趋势分析</li>
+                        <li>竞品对标</li>
+                        <li>库存预测</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('marketing')">
+                    <div class="icon">📢</div>
+                    <h3>营销推广</h3>
+                    <p>AI 制定推广计划与 KOL 合作方案</p>
+                    <ul class="features">
+                        <li>推广策略生成</li>
+                        <li>KOL 邀约文案</li>
+                        <li>预算分配建议</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('supply')">
+                    <div class="icon">📦</div>
+                    <h3>供应链管理</h3>
+                    <p>智能库存管理与补货建议</p>
+                    <ul class="features">
+                        <li>库存预警</li>
+                        <li>补货建议</li>
+                        <li>批次生产计划</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('platform')">
+                    <div class="icon">🌐</div>
+                    <h3>多平台管理</h3>
+                    <p>统一管理各大电商平台商品</p>
+                    <ul class="features">
+                        <li>淘宝/天猫</li>
+                        <li>抖音电商</li>
+                        <li>小红书·微信</li>
+                    </ul>
+                </div>
+                <div class="module-card" onclick="showTab('ai-chat')">
+                    <div class="icon">🤖</div>
+                    <h3>AI 自由对话</h3>
+                    <p>随时向 AI 咨询行业问题</p>
+                    <ul class="features">
+                        <li>行业知识问答</li>
+                        <li>营销策略咨询</li>
+                        <li>数据分析解读</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Optimization -->
+        <div id="tab-product" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">🏷️ 商品优化</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchSubTab('product', 'title')">标题优化</button>
+                <button class="tab-btn" onclick="switchSubTab('product', 'detail')">详情页生成</button>
+                <button class="tab-btn" onclick="switchSubTab('product', 'social')">社媒内容</button>
+                <button class="tab-btn" onclick="switchSubTab('product', 'image')">图片优化</button>
+            </div>
+
+            <div id="product-title" class="sub-tab-content active">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="pt-name" placeholder="如：OPC 宠维康">
+                        </div>
+                        <div class="form-group">
+                            <label>产品品类</label>
+                            <input type="text" id="pt-category" value="宠物保健品">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>核心成分</label>
+                            <input type="text" id="pt-ingredients" placeholder="如：鱼油、益生菌、OPC">
+                        </div>
+                        <div class="form-group">
+                            <label>主要功效</label>
+                            <input type="text" id="pt-benefits" placeholder="如：增强免疫力、美毛护肤">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>目标平台</label>
+                        <select id="pt-platform">
+                            <option value="淘宝">淘宝/天猫</option>
+                            <option value="抖音">抖音电商</option>
+                            <option value="小红书">小红书</option>
+                            <option value="微信">微信私域</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="optimizeTitle()">生成优化标题</button>
+                    <div class="loading" id="loading-pt"><div class="spinner"></div>AI 正在思考...</div>
+                    <div class="result-box" id="result-pt"></div>
+                </div>
+            </div>
+
+            <div id="product-detail" class="sub-tab-content">
+                <div class="panel-body">
+                    <p style="color:var(--text-muted);margin-bottom:1rem;">填写产品详细信息，AI 将生成完整的详情页文案。</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="pd-name" placeholder="如：OPC 宠维康">
+                        </div>
+                        <div class="form-group">
+                            <label>品牌名称</label>
+                            <input type="text" id="pd-brand" placeholder="你的品牌名">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>核心成分</label>
+                            <input type="text" id="pd-ingredients">
+                        </div>
+                        <div class="form-group">
+                            <label>规格</label>
+                            <input type="text" id="pd-spec" placeholder="如：60粒/瓶">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>产品功效与卖点</label>
+                        <textarea id="pd-benefits" placeholder="详细描述产品功效和卖点"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>使用方法</label>
+                        <textarea id="pd-usage" placeholder="如：每日两次，每次两粒"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateDetail()">生成详情页文案</button>
+                    <div class="loading" id="loading-pd"><div class="spinner"></div>AI 正在生成...</div>
+                    <div class="result-box" id="result-pd"></div>
+                </div>
+            </div>
+
+            <div id="product-social" class="sub-tab-content">
+                <div class="panel-body">
+                    <p style="color:var(--text-muted);margin-bottom:1rem;">一键生成适配各平台的推广内容。</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="ps-name">
+                        </div>
+                        <div class="form-group">
+                            <label>品牌名称</label>
+                            <input type="text" id="ps-brand">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>产品卖点</label>
+                        <textarea id="ps-points" placeholder="列出核心卖点"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateSocial()">生成社媒内容</button>
+                    <div class="loading" id="loading-ps"><div class="spinner"></div>AI 正在创作...</div>
+                    <div class="result-box" id="result-ps"></div>
+                </div>
+            </div>
+
+            <div id="product-image" class="sub-tab-content">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="pi-name">
+                        </div>
+                        <div class="form-group">
+                            <label>目标平台</label>
+                            <select id="pi-platform">
+                                <option value="淘宝">淘宝/天猫</option>
+                                <option value="抖音">抖音电商</option>
+                                <option value="小红书">小红书</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="optimizeImage()">获取图片优化建议</button>
+                    <div class="loading" id="loading-pi"><div class="spinner"></div>AI 正在分析...</div>
+                    <div class="result-box" id="result-pi"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Generation -->
+        <div id="tab-content" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">📝 内容生成</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchSubTab('content', 'ad')">广告文案</button>
+                <button class="tab-btn" onclick="switchSubTab('content', 'video')">短视频脚本</button>
+            </div>
+
+            <div id="content-ad" class="sub-tab-content active">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="ca-name">
+                        </div>
+                        <div class="form-group">
+                            <label>投放平台</label>
+                            <select id="ca-platform">
+                                <option value="抖音">抖音</option>
+                                <option value="小红书">小红书</option>
+                                <option value="微信朋友圈">微信朋友圈</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>目标受众</label>
+                        <input type="text" id="ca-audience" value="养宠人群">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateAd()">生成广告文案</button>
+                    <div class="loading" id="loading-ca"><div class="spinner"></div>AI 正在创作...</div>
+                    <div class="result-box" id="result-ca"></div>
+                </div>
+            </div>
+
+            <div id="content-video" class="sub-tab-content">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="cv-name">
+                        </div>
+                        <div class="form-group">
+                            <label>视频风格</label>
+                            <select id="cv-style">
+                                <option value="科普评测">科普评测</option>
+                                <option value="剧情种草">剧情种草</option>
+                                <option value="开箱测评">开箱测评</option>
+                                <option value="知识分享">知识分享</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>视频时长</label>
+                            <select id="cv-duration">
+                                <option value="30秒">30秒</option>
+                                <option value="60秒" selected>60秒</option>
+                                <option value="90秒">90秒</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateVideoScript()">生成脚本</button>
+                    <div class="loading" id="loading-cv"><div class="spinner"></div>AI 正在创作脚本...</div>
+                    <div class="result-box" id="result-cv"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Service -->
+        <div id="tab-customer" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">💬 智能客服</h2>
+            <div class="panel-body">
+                <p style="color:var(--text-muted);margin-bottom:1rem;">7×24 小时智能客服，自动回复客户咨询。</p>
+                <div class="chat-messages" id="chat-box">
+                    <div class="chat-msg bot">
+                        你好！我是 OPC Brain 智能客服助手，请问有什么可以帮助你的？
+                        <div class="time">刚刚</div>
+                    </div>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="输入客户咨询的问题..." onkeypress="if(event.key==='Enter')sendChat()">
+                    <button class="btn btn-primary" onclick="sendChat()">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics -->
+        <div id="tab-analytics" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">📊 数据分析</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchSubTab('analytics', 'sales')">销售分析</button>
+                <button class="tab-btn" onclick="switchSubTab('analytics', 'competitor')">竞品分析</button>
+                <button class="tab-btn" onclick="switchSubTab('analytics', 'forecast')">库存预测</button>
+            </div>
+
+            <div id="analytics-sales" class="sub-tab-content active">
+                <div class="panel-body">
+                    <p style="color:var(--text-muted);margin-bottom:1rem;">粘贴销售数据（JSON 格式），AI 自动分析并提供优化建议。</p>
+                    <div class="form-group">
+                        <label>产品名称</label>
+                        <input type="text" id="sa-name">
+                    </div>
+                    <div class="form-group">
+                        <label>销售数据（JSON 数组）</label>
+                        <textarea id="sa-data" placeholder='[{"date":"2026-01","sales_volume":100,"sales_amount":5000,"views":2000},{"date":"2026-02","sales_volume":150,"sales_amount":7500,"views":3000}]'></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeSales()">开始分析</button>
+                    <div class="loading" id="loading-sa"><div class="spinner"></div>AI 正在分析...</div>
+                    <div class="result-box" id="result-sa"></div>
+                </div>
+            </div>
+
+            <div id="analytics-competitor" class="sub-tab-content">
+                <div class="panel-body">
+                    <p style="color:var(--text-muted);margin-bottom:1rem;">输入你的产品和竞品信息，AI 输出差异化竞争策略。</p>
+                    <div class="form-group">
+                        <label>你的产品名称</label>
+                        <input type="text" id="ca-product">
+                    </div>
+                    <div class="form-group">
+                        <label>你的产品价格</label>
+                        <input type="text" id="ca-price" placeholder="如：128">
+                    </div>
+                    <div class="form-group">
+                        <label>竞品数据（JSON 数组）</label>
+                        <textarea id="ca-data" placeholder='[{"name":"竞品A","price":99,"monthly_sales":5000,"rating":4.5,"selling_points":"天然成分"},{"name":"竞品B","price":158,"monthly_sales":3000,"rating":4.8,"selling_points":"进口原料"}]'></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeCompetitor()">竞品分析</button>
+                    <div class="loading" id="loading-ca2"><div class="spinner"></div>AI 正在分析竞品...</div>
+                    <div class="result-box" id="result-ca2"></div>
+                </div>
+            </div>
+
+            <div id="analytics-forecast" class="sub-tab-content">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label>产品名称</label>
+                        <input type="text" id="fi-name">
+                    </div>
+                    <div class="form-group">
+                        <label>历史销售数据（JSON 数组）</label>
+                        <textarea id="fi-data" placeholder='[{"month":"2026-01","sales":500},{"month":"2026-02","sales":550},{"month":"2026-03","sales":620}]'></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="forecastInventory()">预测库存</button>
+                    <div class="loading" id="loading-fi"><div class="spinner"></div>AI 正在预测...</div>
+                    <div class="result-box" id="result-fi"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketing -->
+        <div id="tab-marketing" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">📢 营销推广</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchSubTab('marketing', 'plan')">推广方案</button>
+                <button class="tab-btn" onclick="switchSubTab('marketing', 'kol')">KOL 邀约</button>
+            </div>
+
+            <div id="marketing-plan" class="sub-tab-content active">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>产品名称</label>
+                            <input type="text" id="mp-name">
+                        </div>
+                        <div class="form-group">
+                            <label>目标平台</label>
+                            <select id="mp-platform">
+                                <option value="抖音">抖音</option>
+                                <option value="小红书">小红书</option>
+                                <option value="全平台">全平台</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>预算（元）</label>
+                            <input type="number" id="mp-budget" value="10000">
+                        </div>
+                        <div class="form-group">
+                            <label>推广目标</label>
+                            <input type="text" id="mp-target" value="提升品牌知名度">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateMarketingPlan()">生成推广方案</button>
+                    <div class="loading" id="loading-mp"><div class="spinner"></div>AI 正在制定方案...</div>
+                    <div class="result-box" id="result-mp"></div>
+                </div>
+            </div>
+
+            <div id="marketing-kol" class="sub-tab-content">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label>产品名称</label>
+                        <input type="text" id="mk-name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>KOL 类型</label>
+                            <select id="mk-type">
+                                <option value="宠物类博主">宠物类博主</option>
+                                <option value="萌宠达人">萌宠达人</option>
+                                <option value="宠物医生">宠物医生/专家</option>
+                                <option value="宠物店主">宠物店主</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>合作平台</label>
+                            <select id="mk-platform">
+                                <option value="小红书">小红书</option>
+                                <option value="抖音">抖音</option>
+                                <option value="B站">B站</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateKOL()">生成邀约文案</button>
+                    <div class="loading" id="loading-mk"><div class="spinner"></div>AI 正在生成...</div>
+                    <div class="result-box" id="result-mk"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supply Chain -->
+        <div id="tab-supply" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">📦 供应链管理</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchSubTab('supply', 'reorder')">补货建议</button>
+                <button class="tab-btn" onclick="switchSubTab('supply', 'batch')">批次计划</button>
+            </div>
+
+            <div id="supply-reorder" class="sub-tab-content active">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>当前库存</label>
+                            <input type="number" id="sr-stock" value="500">
+                        </div>
+                        <div class="form-group">
+                            <label>日均销量</label>
+                            <input type="number" id="sr-sales" value="20" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>采购提前期（天）</label>
+                            <input type="number" id="sr-lead" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label>安全库存天数</label>
+                            <input type="number" id="sr-safety" value="7">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="calcReorder()">计算补货建议</button>
+                    <div class="loading" id="loading-sr"><div class="spinner"></div>正在计算...</div>
+                    <div class="result-box" id="result-sr"></div>
+                </div>
+            </div>
+
+            <div id="supply-batch" class="sub-tab-content">
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>月度预测销量</label>
+                            <input type="number" id="sb-forecast" value="3000">
+                        </div>
+                        <div class="form-group">
+                            <label>单批次最大产能</label>
+                            <input type="number" id="sb-capacity" value="1000">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="calcBatch()">计算批次计划</button>
+                    <div class="loading" id="loading-sb"><div class="spinner"></div>正在计算...</div>
+                    <div class="result-box" id="result-sb"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Management (simplified) -->
+        <div id="tab-platform" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">🌐 多平台管理</h2>
+            <div class="panel-body">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">🐱 淘宝/天猫</div>
+                        <div class="value purple" id="platform-taobao">--</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">待配置 API</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">🎵 抖音电商</div>
+                        <div class="value" id="platform-douyin">--</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">待配置 API</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">📕 小红书</div>
+                        <div class="value" id="platform-xhs">--</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">待配置 API</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">💬 微信私域</div>
+                        <div class="value" id="platform-wechat">--</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">待配置 API</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>平台 API 配置说明</label>
+                    <div style="background:var(--bg);padding:1rem;border-radius:8px;font-size:0.85rem;color:var(--text-muted);line-height:1.8;">
+                        <p>请编辑项目根目录的 <code>.env</code> 文件，配置各平台的 API 密钥：</p>
+                        <pre style="margin-top:0.5rem;background:#0a0a1a;padding:1rem;border-radius:4px;">
+TAOBAO_APP_KEY=你的淘宝AppKey
+DOUYIN_APP_ID=你的抖音AppID
+XIAOHONGSHU_CLIENT_ID=你的小红书ClientID
+WECHAT_APP_ID=你的微信AppID</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Chat -->
+        <div id="tab-ai-chat" class="tab-content">
+            <h2 style="margin-bottom:1.5rem;">🤖 AI 自由对话</h2>
+            <div class="panel-body">
+                <p style="color:var(--text-muted);margin-bottom:1rem;">随时向 AI 咨询宠物保健品行业相关问题。</p>
+                <div class="chat-messages" id="ai-chat-box">
+                    <div class="chat-msg bot">
+                        你好！我是 OPC Brain AI 助手，可以帮你解答宠物保健品行业的相关问题。
+                        <div class="time">刚刚</div>
+                    </div>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="ai-chat-input" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendAIChat()">
+                    <button class="btn btn-primary" onclick="sendAIChat()">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            OPC Brain v1.0 · 一人公司 AI 智能大脑 · 专注于宠物保健品品牌全链路运营
+        </div>
+    </div>
+
+    <script>
+        // Tab management
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            const tab = document.getElementById('tab-' + tabId);
+            if (tab) tab.classList.add('active');
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            const link = document.querySelector(`.nav-links a[onclick*="'${tabId}'"]`);
+            if (link) link.classList.add('active');
+        }
+
+        function switchSubTab(parent, sub) {
+            const parentEl = document.getElementById('tab-' + parent);
+            parentEl.querySelectorAll('.sub-tab-content').forEach(t => t.classList.remove('active'));
+            const subTab = parentEl.querySelector('#' + parent + '-' + sub);
+            if (subTab) subTab.classList.add('active');
+            parentEl.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const btn = parentEl.querySelector(`.tab-btn[onclick*="'${parent}', '${sub}'"]`);
+            if (btn) btn.classList.add('active');
+        }
+
+        async function apiCall(endpoint, data) {
+            const resp = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return await resp.json();
+        }
+
+        function showResult(elementId, data) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        }
+
+        function showLoading(loaderId) {
+            document.getElementById(loaderId).classList.add('show');
+        }
+
+        function hideLoading(loaderId) {
+            document.getElementById(loaderId).classList.remove('show');
+        }
+
+        function getVal(id) { return document.getElementById(id).value; }
+
+        // Product - Title Optimization
+        async function optimizeTitle() {
+            showLoading('loading-pt');
+            try {
+                const data = await apiCall('/api/v1/product/optimize-title', {
+                    name: getVal('pt-name'), category: getVal('pt-category'),
+                    ingredients: getVal('pt-ingredients'), benefits: getVal('pt-benefits'),
+                    platform: getVal('pt-platform')
+                });
+                showResult('result-pt', data);
+            } catch(e) { showResult('result-pt', '错误: ' + e.message); }
+            hideLoading('loading-pt');
+        }
+
+        // Product - Detail Generation
+        async function generateDetail() {
+            showLoading('loading-pd');
+            try {
+                const data = await apiCall('/api/v1/product/generate-detail', {
+                    name: getVal('pd-name'), brand_name: getVal('pd-brand'),
+                    ingredients: getVal('pd-ingredients'), specification: getVal('pd-spec'),
+                    benefits: getVal('pd-benefits'), usage: getVal('pd-usage')
+                });
+                showResult('result-pd', data);
+            } catch(e) { showResult('result-pd', '错误: ' + e.message); }
+            hideLoading('loading-pd');
+        }
+
+        // Product - Social Content
+        async function generateSocial() {
+            showLoading('loading-ps');
+            try {
+                const data = await apiCall('/api/v1/product/generate-social', {
+                    name: getVal('ps-name'), brand_name: getVal('ps-brand'),
+                    selling_points: getVal('ps-points')
+                });
+                showResult('result-ps', data);
+            } catch(e) { showResult('result-ps', '错误: ' + e.message); }
+            hideLoading('loading-ps');
+        }
+
+        // Product - Image Optimization
+        async function optimizeImage() {
+            showLoading('loading-pi');
+            try {
+                const data = await apiCall('/api/v1/product/optimize-image', {
+                    name: getVal('pi-name'), platform: getVal('pi-platform')
+                });
+                showResult('result-pi', data);
+            } catch(e) { showResult('result-pi', '错误: ' + e.message); }
+            hideLoading('loading-pi');
+        }
+
+        // Content - Ad Copy
+        async function generateAd() {
+            showLoading('loading-ca');
+            try {
+                const data = await apiCall('/api/v1/content/ad-copy', {
+                    product_name: getVal('ca-name'), platform: getVal('ca-platform'),
+                    audience: getVal('ca-audience')
+                });
+                showResult('result-ca', data.content || data);
+            } catch(e) { showResult('result-ca', '错误: ' + e.message); }
+            hideLoading('loading-ca');
+        }
+
+        // Content - Video Script
+        async function generateVideoScript() {
+            showLoading('loading-cv');
+            try {
+                const data = await apiCall('/api/v1/content/video-script', {
+                    product_name: getVal('cv-name'), style: getVal('cv-style'),
+                    duration: getVal('cv-duration')
+                });
+                showResult('result-cv', data);
+            } catch(e) { showResult('result-cv', '错误: ' + e.message); }
+            hideLoading('loading-cv');
+        }
+
+        // Customer Service Chat
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="chat-msg user">${msg}<div class="time">刚刚</div></div>`;
+            input.value = '';
+            const resp = await apiCall('/api/v1/customer/chat', { question: msg });
+            box.innerHTML += `<div class="chat-msg bot">${resp.reply}<div class="time">刚刚</div></div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // AI Chat
+        async function sendAIChat() {
+            const input = document.getElementById('ai-chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            const box = document.getElementById('ai-chat-box');
+            box.innerHTML += `<div class="chat-msg user">${msg}<div class="time">刚刚</div></div>`;
+            input.value = '';
+            const resp = await apiCall('/api/v1/ai/chat', { prompt: msg });
+            box.innerHTML += `<div class="chat-msg bot">${resp.reply}<div class="time">刚刚</div></div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Analytics - Sales
+        async function analyzeSales() {
+            showLoading('loading-sa');
+            try {
+                const data = JSON.parse(getVal('sa-data'));
+                const result = await apiCall('/api/v1/analytics/sales', {
+                    product_name: getVal('sa-name'), data: data
+                });
+                showResult('result-sa', result);
+            } catch(e) { showResult('result-sa', '错误: ' + e.message); }
+            hideLoading('loading-sa');
+        }
+
+        // Analytics - Competitor
+        async function analyzeCompetitor() {
+            showLoading('loading-ca2');
+            try {
+                const competitors = JSON.parse(getVal('ca-data'));
+                const result = await apiCall('/api/v1/analytics/competitor', {
+                    product: { name: getVal('ca-product'), price: parseFloat(getVal('ca-price')) },
+                    competitors: competitors
+                });
+                showResult('result-ca2', result);
+            } catch(e) { showResult('result-ca2', '错误: ' + e.message); }
+            hideLoading('loading-ca2');
+        }
+
+        // Analytics - Forecast
+        async function forecastInventory() {
+            showLoading('loading-fi');
+            try {
+                const history = JSON.parse(getVal('fi-data'));
+                const result = await apiCall('/api/v1/analytics/forecast', {
+                    product_name: getVal('fi-name'), sales_history: history
+                });
+                showResult('result-fi', result);
+            } catch(e) { showResult('result-fi', '错误: ' + e.message); }
+            hideLoading('loading-fi');
+        }
+
+        // Marketing - Plan
+        async function generateMarketingPlan() {
+            showLoading('loading-mp');
+            try {
+                const result = await apiCall('/api/v1/marketing/plan', {
+                    product_name: getVal('mp-name'), platform: getVal('mp-platform'),
+                    budget: parseFloat(getVal('mp-budget')), target: getVal('mp-target')
+                });
+                showResult('result-mp', result);
+            } catch(e) { showResult('result-mp', '错误: ' + e.message); }
+            hideLoading('loading-mp');
+        }
+
+        // Marketing - KOL
+        async function generateKOL() {
+            showLoading('loading-mk');
+            try {
+                const result = await apiCall('/api/v1/marketing/kol-outreach', {
+                    product_name: getVal('mk-name'), kol_type: getVal('mk-type'),
+                    platform: getVal('mk-platform')
+                });
+                showResult('result-mk', result.content || result);
+            } catch(e) { showResult('result-mk', '错误: ' + e.message); }
+            hideLoading('loading-mk');
+        }
+
+        // Supply - Reorder
+        async function calcReorder() {
+            showLoading('loading-sr');
+            try {
+                const result = await apiCall('/api/v1/supply/reorder', {
+                    current_stock: parseInt(getVal('sr-stock')),
+                    daily_sales: parseFloat(getVal('sr-sales')),
+                    lead_time_days: parseInt(getVal('sr-lead')),
+                    safety_days: parseInt(getVal('sr-safety'))
+                });
+                showResult('result-sr', result);
+            } catch(e) { showResult('result-sr', '错误: ' + e.message); }
+            hideLoading('loading-sr');
+        }
+
+        // Supply - Batch
+        async function calcBatch() {
+            showLoading('loading-sb');
+            try {
+                const result = await apiCall('/api/v1/supply/batch-plan', {
+                    monthly_forecast: parseInt(getVal('sb-forecast')),
+                    production_capacity: parseInt(getVal('sb-capacity'))
+                });
+                showResult('result-sb', result);
+            } catch(e) { showResult('result-sb', '错误: ' + e.message); }
+            hideLoading('loading-sb');
+        }
+
+        // Initial health check
+        async function loadHealth() {
+            try {
+                const resp = await fetch('/api/v1/brand/health');
+                const data = await resp.json();
+                document.getElementById('brand-health').textContent = data.status === 'healthy' ? '✓ 正常' : '⚠ 异常';
+            } catch(e) {
+                document.getElementById('brand-health').textContent = '--';
+            }
+        }
+        loadHealth();
+    </script>
+</body>
+</html>
