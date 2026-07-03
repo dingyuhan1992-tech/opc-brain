@@ -6,7 +6,8 @@ import uvicorn
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE_DIR)
 
 from database.db import engine, Base
 from api.routes import router
@@ -16,16 +17,19 @@ app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
 
 Base.metadata.create_all(bind=engine)
 
-app.mount("/static", StaticFiles(directory="web/static"), name="static")
+_static_dir = os.path.join(BASE_DIR, "web", "static")
+if not os.path.isdir(_static_dir):
+    os.makedirs(_static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=_static_dir), name="static")
 
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "web", "templates"))
 
 app.include_router(router)
 
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse(request, "dashboard.html", {"request": request})
 
 
 @app.get("/health")
